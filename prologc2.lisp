@@ -13,15 +13,15 @@
 
 (defmacro paip-deref (exp)
   "Follow pointers for bound variables."
-  `(progn (loop while (and (var-p ,exp) (bound-p ,exp))
+  `(progn (loop while (and (paip-var-p ,exp) (bound-p ,exp))
              do (setf ,exp (paip-var-binding ,exp)))
           ,exp))
 
 (defun unify! (x y)
   "Destructively unify two expressions"
   (cond ((eql (paip-deref x) (paip-deref y)) t)
-        ((var-p x) (set-binding! x y))
-        ((var-p y) (set-binding! y x))
+        ((paip-var-p x) (set-binding! x y))
+        ((paip-var-p y) (set-binding! y x))
         ((and (consp x) (consp y))
          (and (unify! (first x) (first y))
               (unify! (rest x) (rest y))))
@@ -35,7 +35,7 @@
 (defun print-var (var stream depth)
   (if (or (and *print-level*
                (= depth *print-level*))
-          (var-p (paip-deref var)))
+          (paip-var-p (paip-deref var)))
       (format stream "?~a" (paip-var-name var))
       (write var :stream stream)))
 

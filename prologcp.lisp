@@ -31,7 +31,7 @@
 (defun deref-equal (x y)
   "Are the two arguments EQUAL with no unification,
   but with dereferencing?"
-  (or (eql (deref x) (deref y))
+  (or (eql (paip-deref x) (paip-deref y))
       (and (consp x)
            (consp y)
            (deref-equal (first x) (first y))
@@ -39,7 +39,7 @@
 
 (defun call/1 (goal cont)
   "Try to prove goal by calling it."
-  (deref goal)
+  (paip-deref goal)
   (apply (make-predicate (first goal)
                          (length (args goal)))
          (append (args goal) (list cont))))
@@ -84,8 +84,8 @@
   "Copy the expression, replacing variables with new ones.
   The part without variables can be returned as is."
   ;; Bug fix by farquhar and norvig, 12/12/92.  Forgot to deref var.
-  (sublis (mapcar #'(lambda (var) (cons (deref var) (?)))
-                  (unique-find-anywhere-if #'var-p exp))
+  (sublis (mapcar #'(lambda (var) (cons (paip-deref var) (?)))
+                  (unique-find-anywhere-if #'paip-var-p exp))
           exp))
 
 (defun setof/3 (exp goal result cont)
@@ -111,7 +111,7 @@
 
 (defun unbound-var-p (exp)
   "Is EXP an unbound var?"
-  (and (var-p exp) (not (bound-p exp))))
+  (and (paip-var-p exp) (not (bound-p exp))))
 
 (defun var/1 (?arg1 cont)
   "Succeeds if ?arg1 is an uninstantiated variable."
@@ -120,7 +120,7 @@
 
 (defun lisp/2 (?result exp cont)
   "Apply (first exp) to (rest exp), and return the result."
-  (if (and (consp (deref exp))
+  (if (and (consp (paip-deref exp))
            (unify! ?result (apply (first exp) (rest exp))))
       (funcall cont)))
 
@@ -144,10 +144,10 @@
 (<- (length (?x . ?y) (1+ ?n)) (length ?y ?n))
 
 (defun numberp/1 (x cont)
-  (when (numberp (deref x))
+  (when (numberp (paip-deref x))
     (funcall cont)))
 
 (defun atom/1 (x cont)
-  (when (atom (deref x))
+  (when (atom (paip-deref x))
     (funcall cont)))
 
