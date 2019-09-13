@@ -5,21 +5,21 @@
 ;;;; File prologc1.lisp: Version 1 of the prolog compiler,
 ;;;; including the destructive unification routines from Chapter 11.
 
-(defconstant unbound "Unbound")
+(defparameter paip-unbound "Unbound")
 
-(defstruct var name (binding unbound))
+(defstruct paip-var name (binding unbound))
 
-(defun bound-p (var) (not (eq (var-binding var) unbound)))
+(defun bound-p (var) (not (eq (paip-var-binding var) unbound)))
 
-(defmacro deref (exp)
+(defmacro paip-deref (exp)
   "Follow pointers for bound variables."
   `(progn (loop while (and (var-p ,exp) (bound-p ,exp))
-             do (setf ,exp (var-binding ,exp)))
+             do (setf ,exp (paip-var-binding ,exp)))
           ,exp))
 
 (defun unify! (x y)
   "Destructively unify two expressions"
-  (cond ((eql (deref x) (deref y)) t)
+  (cond ((eql (paip-deref x) (paip-deref y)) t)
         ((var-p x) (set-binding! x y))
         ((var-p y) (set-binding! y x))
         ((and (consp x) (consp y))
@@ -29,14 +29,14 @@
 
 (defun set-binding! (var value)
   "Set var's binding to value.  Always succeeds (returns t)."
-  (setf (var-binding var) value)
+  (setf (paip-var-binding var) value)
   t)
 
 (defun print-var (var stream depth)
   (if (or (and *print-level*
                (>= depth *print-level*))
-          (var-p (deref var)))
-      (format stream "?~a" (var-name var))
+          (var-p (paip-deref var)))
+      (format stream "?~a" (paip-var-name var))
       (write var :stream stream)))
 
 (defvar *trail* (make-array 200 :fill-pointer 0 :adjustable t))
@@ -46,17 +46,17 @@
   in the trail.  Always returns t."
   (unless (eq var value)
     (vector-push-extend var *trail*)
-    (setf (var-binding var) value))
+    (setf (paip-var-binding var) value))
   t)
 
 (defun undo-bindings! (old-trail)
   "Undo all bindings back to a given point in the trail."
   (loop until (= (fill-pointer *trail*) old-trail)
-     do (setf (var-binding (vector-pop *trail*)) unbound)))
+     do (setf (paip-var-binding (vector-pop *trail*)) unbound)))
 
 (defvar *var-counter* 0)
 
-(defstruct (var (:constructor ? ())
+(defstruct (paip-var (:constructor ? ())
                 (:print-function print-var))
   (name (incf *var-counter*))
   (binding unbound))

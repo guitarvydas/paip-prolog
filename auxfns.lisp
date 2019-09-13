@@ -290,8 +290,8 @@
 
 ;;;; PATTERN MATCHING FACILITY
 
-(defconstant fail nil)
-(defconstant no-bindings '((t . t)))
+(defparameter fail nil)
+(defparameter no-bindings '((t . t)))
 
 (defun pat-match (pattern input &optional (bindings no-bindings))
   "Match pattern against input in the context of the bindings"
@@ -511,7 +511,7 @@
        (position symbol ',elements))
      ,@(loop for element in elements
              for i from 0
-             collect `(defconstant ,element ,i))))
+             collect `(defparameter ,element ,i))))
 
 ;;; ==============================
 

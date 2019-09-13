@@ -5,7 +5,6 @@
                         :pathname "./"
                         :components ((:file "package")
                                      (:file "auxfns")
-                                     (:file "defconstant")
                                      (:file "patmatch")
                                      (:file "unify")
                                      (:file "prolog")
